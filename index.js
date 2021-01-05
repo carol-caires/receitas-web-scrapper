@@ -2,8 +2,8 @@ const express = require("express");
 const app = express();
 const api = require('./api')
 
-app.get("/bolo", (req, res, next) => {
-    api.search()
+app.get("/search/:name", (req, res, next) => {
+    api.search(req.params.name)
     .then((resp) => {
         res.json(resp)
     })
