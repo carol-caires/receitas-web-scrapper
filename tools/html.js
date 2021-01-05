@@ -59,18 +59,24 @@ function extractRecipeID(link) {
 }
 
 function extractIngredients(doc) {
-    const ingredients = doc.querySelectorAll("div.ingredients-card .card-subtitle");
+    const ingredients = doc.querySelectorAll("div.ingredients-card");
     let ingredient_sections = []
-    ingredients.forEach(element => {
-        const titleElement = element.querySelector("strong")
-        if (titleElement != null) {
-            const title = titleElement.textContent
-            let section = {title: title, items: []}
-            const items = element.nextElementSibling.querySelectorAll("li span.p-ingredient")
-            items.forEach(item => {
-                if (item != null)
-                    section.items = section.items.concat(item.textContent)
+    let section = {}
+    ingredients.forEach(ingredient => {
+        let title = "default"
+        const subtitles = ingredient.querySelectorAll(".card-subtitle")
+        if (subtitles.length > 0) {
+            subtitles.forEach(sub_element => {
+                const titleElement = sub_element
+                // const titleElement = sub_element.querySelector("strong")
+                if (titleElement != null) {
+                    title = titleElement.textContent
+                }
+                section = parseItems(title, sub_element, "span.p-ingredient")
+                ingredient_sections = ingredient_sections.concat(section)
             });
+        } else {
+            section = parseItems(title, ingredient, "span.p-ingredient")
             ingredient_sections = ingredient_sections.concat(section)
         }
     });
@@ -78,18 +84,23 @@ function extractIngredients(doc) {
 }
 
 function extractInstructions(doc) {
-    const instructions = doc.querySelectorAll("div.instructions .card-subtitle")
+    const instructions = doc.querySelectorAll("div.instructions")
     let instructions_sections = []
-    instructions.forEach(element => {
-        const titleElement = element.querySelector("strong")
-        if (titleElement != null) {
-            const title = titleElement.textContent
-            let section = {title: title, items: []}
-            const items = element.nextElementSibling.querySelectorAll("li span")
-            items.forEach(item => {
-                if (item != null)
-                    section.items = section.items.concat(item.textContent)
+    instructions.forEach(instruction => {
+        let title = "default"
+        const subtitles = instruction.querySelectorAll(".card-subtitle")
+        if (subtitles.length > 0) {
+            subtitles.forEach(sub_element => {
+                // const titleElement = sub_element.querySelector("strong")
+                const titleElement = sub_element
+                if (titleElement != null) {
+                    title = sub_element.textContent
+                }
+                section = parseItems(title, sub_element, "li span")
+                instructions_sections = instructions_sections.concat(section)
             });
+        } else {
+            section = parseItems(title, instruction, "li span")
             instructions_sections = instructions_sections.concat(section)
         }
     });
@@ -119,4 +130,20 @@ function extractStats(doc) {
 
 function extractTitle(doc) {
     return doc.querySelector("div.recipe-title h1").textContent.replace(/\n/g, '')
+}
+
+function parseItems(title, element, identifier){
+    let section = {title: title, items: []}
+    let itemElement
+    if(element.className == "card-subtitle") {
+        itemElement = element.nextElementSibling
+    } else {
+        itemElement = element
+    }
+    const items = itemElement.querySelectorAll(identifier)
+    items.forEach(item => {
+        if (item != null)
+            section.items = section.items.concat(item.textContent)
+    });
+    return section
 }
