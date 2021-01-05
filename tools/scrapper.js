@@ -116,11 +116,13 @@ module.exports = {
     const dom = new JSDOM(str);
     const doc = dom.window.document;
 
-    const recipes = doc.querySelectorAll('.recipe-card');
-    if (recipes.length === 0) {
-      throw new Error('no recipe found');
+    if (doc.querySelectorAll('.no-results').length > 0) {
+      return new Promise((resolve, reject) => {
+        reject(constants.errors.recipes_search_not_found);
+      });
     }
 
+    const recipes = doc.querySelectorAll('.recipe-card');
     const maxRecipes = constants.max_recipes_returned;
     let retRecipes = [];
     for (let i = 0; i < maxRecipes; i += 1) {
@@ -142,6 +144,11 @@ module.exports = {
   parseRecipe(str) {
     const dom = new JSDOM(str);
     const doc = dom.window.document;
+
+    if (doc.body.innerHTML.includes('redirected')) {
+      return new Promise((resolve, reject) => { reject(constants.errors.get_recipe_not_found); });
+    }
+
     return {
       title: extractTitle(doc),
       stats: extractStats(doc),

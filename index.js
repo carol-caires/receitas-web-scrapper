@@ -8,7 +8,9 @@ app.get('/search/:name', (req, res) => {
     .then((resp) => {
       res.json(resp);
     })
-    .catch((err) => res.status(500).json({ error: err }));
+    .catch((err) => {
+      res.status(err.code).json({ error: err.message });
+    });
 });
 
 app.get('/recipe/:id', (req, res) => {
@@ -16,7 +18,9 @@ app.get('/recipe/:id', (req, res) => {
     .then((resp) => {
       res.json(resp);
     })
-    .catch((err) => res.status(500).json({ error: err }));
+    .catch((err) => {
+      res.status(err.code).json({ error: err.message });
+    });
 });
 
 let port = process.env.PORT;
