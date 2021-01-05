@@ -1,4 +1,4 @@
-const html = require('./tools/html');
+const scrapper = require('./tools/scrapper');
 const request = require('./tools/request')
 
 module.exports = {
@@ -7,7 +7,7 @@ module.exports = {
         let res
         await request.searchRecipes(searchStr)
         .then((resp) => {
-            res = html.parseRecipesList(resp)
+            res = scrapper.parseRecipesList(resp)
         })
         .catch((err) => {
             return err
@@ -17,7 +17,7 @@ module.exports = {
     get_recipe: async function (id) {
         await request.getRecipeByID(id)
         .then((resp) => {
-            res = html.parseRecipe(resp)
+            res = scrapper.parseRecipe(resp)
         })
         .catch((err) => {
             return err

@@ -1,9 +1,9 @@
 const express = require("express");
 const app = express();
-const api = require('./api')
+const service = require('./service')
 
 app.get("/search/:name", (req, res, next) => {
-    api.search(req.params.name)
+    service.search(req.params.name)
     .then((resp) => {
         res.json(resp)
     })
@@ -14,7 +14,7 @@ app.get("/search/:name", (req, res, next) => {
 });
 
 app.get("/recipe/:id", (req, res, next) => {
-    api.get_recipe(req.params.id)
+    service.get_recipe(req.params.id)
     .then((resp) => {
         res.json(resp)
     })
