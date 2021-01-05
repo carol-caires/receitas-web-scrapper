@@ -34,11 +34,12 @@ module.exports = {
     parseRecipe: function (str) {
         var dom = new JSDOM(str);
         const doc = dom.window.document
-        let ret = {}
-
-        ret.ingredients = extractIngredients(doc)
-        ret.instructions = extractInstructions(doc)
-        return ret
+        return {
+            title: extractTitle(doc),
+            stats: extractStats(doc),
+            ingredients: extractIngredients(doc),
+            instructions: extractInstructions(doc)
+        }
     }
 }
 
@@ -93,4 +94,29 @@ function extractInstructions(doc) {
         }
     });
     return instructions_sections
+}
+
+function extractStats(doc) {
+    let ret = {}
+
+    const regex = /(\D)/gm; // remove any non-digit
+    const subst = ``;
+
+    const prepare_time_element = doc.querySelector("time.dt-duration")
+    if (prepare_time_element != null)
+        ret.prepare_time_minutes = Number(prepare_time_element.textContent.replace(regex, subst));
+
+    const portion_output_element = doc.querySelector("data.p-yield")
+    if (portion_output_element != null)
+        ret.portion_output = Number(portion_output_element.textContent.replace(regex, subst));
+
+    const favorites_element = doc.querySelector("div.like data.num")
+    if (favorites_element != null)
+        ret.favorites = Number(favorites_element.textContent.replace(regex, subst));
+
+    return ret
+}
+
+function extractTitle(doc) {
+    return doc.querySelector("div.recipe-title h1").textContent.replace(/\n/g, '')
 }
