@@ -4,8 +4,12 @@ const { promisify } = require('util');
 const constants = require('../constants')
 
 module.exports = {
-    searchRecipe: function(searchStr){
+    searchRecipes: function(searchStr){
         const url = constants.tg_base_url+'/busca?q='+searchStr
+        return request(url)
+    },
+    getRecipeByID: function(id){
+        const url = constants.tg_base_url+'/receita/'+id+'.html'
         return request(url)
     }
 }

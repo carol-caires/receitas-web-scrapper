@@ -1,8 +1,10 @@
-var DomParser = require('dom-parser');
+var DomParser = require('dom-parser'); // todo: remove
+const jsdom = require("jsdom");
+const { JSDOM } = jsdom;
 const constants = require('../constants')
 
 module.exports = {
-    parse: function (str) {
+    parseRecipesList: function (str) {
         var parser = new DomParser();
         var doc = parser.parseFromString(str);
         let recipes = doc.getElementsByClassName("recipe-card");
@@ -28,6 +30,15 @@ module.exports = {
             }
         }
         return retRecipes
+    },
+    parseRecipe: function (str) {
+        var dom = new JSDOM(str);
+        const doc = dom.window.document
+        let ret = {}
+
+        ret.ingredients = extractIngredients(doc)
+        ret.instructions = extractInstructions(doc)
+        return ret
     }
 }
 
@@ -44,4 +55,42 @@ function extractRecipeID(link) {
         }
     }
     return recipe_id
+}
+
+function extractIngredients(doc) {
+    const ingredients = doc.querySelectorAll("div.ingredients-card .card-subtitle");
+    let ingredient_sections = []
+    ingredients.forEach(element => {
+        const titleElement = element.querySelector("strong")
+        if (titleElement != null) {
+            const title = titleElement.textContent
+            let section = {title: title, items: []}
+            const items = element.nextElementSibling.querySelectorAll("li span.p-ingredient")
+            items.forEach(item => {
+                if (item != null)
+                    section.items = section.items.concat(item.textContent)
+            });
+            ingredient_sections = ingredient_sections.concat(section)
+        }
+    });
+    return ingredient_sections
+}
+
+function extractInstructions(doc) {
+    const instructions = doc.querySelectorAll("div.instructions .card-subtitle")
+    let instructions_sections = []
+    instructions.forEach(element => {
+        const titleElement = element.querySelector("strong")
+        if (titleElement != null) {
+            const title = titleElement.textContent
+            let section = {title: title, items: []}
+            const items = element.nextElementSibling.querySelectorAll("li span")
+            items.forEach(item => {
+                if (item != null)
+                    section.items = section.items.concat(item.textContent)
+            });
+            instructions_sections = instructions_sections.concat(section)
+        }
+    });
+    return instructions_sections
 }

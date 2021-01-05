@@ -13,6 +13,17 @@ app.get("/search/:name", (req, res, next) => {
     })
 });
 
+app.get("/recipe/:id", (req, res, next) => {
+    api.get_recipe(req.params.id)
+    .then((resp) => {
+        res.json(resp)
+    })
+    .catch((err) => {
+        console.log(err)
+        return res.status(500).json({"error": err})
+    })
+});
+
 let port = process.env.PORT;
 if (port == null || port == "") {
   port = 3000;

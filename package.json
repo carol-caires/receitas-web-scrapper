@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
+    "dom-parser": "^0.1.6",
     "express": "^4.17.1",
-    "dom-parser": "^0.1.6"
+    "jsdom": "^16.4.0"
   },
   "devDependencies": {},
   "scripts": {
