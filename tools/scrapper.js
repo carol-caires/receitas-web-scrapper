@@ -1,6 +1,5 @@
 /* eslint-disable prefer-destructuring */
 /* eslint-disable no-cond-assign */
-const DomParser = require('dom-parser'); // todo: remove
 const jsdom = require('jsdom');
 
 const { JSDOM } = jsdom;
@@ -114,23 +113,23 @@ function extractTitle(doc) {
 
 module.exports = {
   parseRecipesList(str) {
-    const parser = new DomParser();
-    const doc = parser.parseFromString(str);
-    const recipes = doc.getElementsByClassName('recipe-card');
+    const dom = new JSDOM(str);
+    const doc = dom.window.document;
+
+    const recipes = doc.querySelectorAll('.recipe-card');
     if (recipes.length === 0) {
       throw new Error('no recipe found');
     }
 
     const maxRecipes = constants.max_recipes_returned;
-
     let retRecipes = [];
     for (let i = 0; i < maxRecipes; i += 1) {
-      const titles = recipes[i].getElementsByClassName('title');
-      const links = recipes[i].getElementsByClassName('link');
+      const titles = recipes[i].querySelectorAll('.title');
+      const links = recipes[i].querySelectorAll('.link');
 
       if (titles.length > 0 && links.length > 0) {
         const title = titles[0].textContent;
-        const link = links[0].getAttribute('href');
+        const link = links[0].href;
 
         retRecipes = retRecipes.concat({
           title: title.replace(/\n/g, ''),
