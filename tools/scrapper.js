@@ -22,13 +22,10 @@ function extractRecipeID(link) {
 
 function parseItems(title, element, identifier) {
   const section = { title, items: [] };
-  let itemElement;
-  if (element.className === 'card-subtitle') {
-    itemElement = element.nextElementSibling;
-  } else {
-    itemElement = element;
+  let items = element.querySelectorAll(identifier);
+  if (items.length === 0) {
+    items = element.nextElementSibling.querySelectorAll(identifier);
   }
-  const items = itemElement.querySelectorAll(identifier);
   items.forEach((item) => {
     if (item != null) { section.items = section.items.concat(item.textContent); }
   });
@@ -41,7 +38,12 @@ function extractIngredients(doc) {
   let section = {};
   ingredients.forEach((ingredient) => {
     let title = 'default';
+
     const subtitles = ingredient.querySelectorAll('.card-subtitle');
+    if (subtitles.length === 0) {
+      section = parseItems(title, ingredient, 'span.p-ingredient');
+      ingredientSections = ingredientSections.concat(section);
+    }
     if (subtitles.length > 0) {
       subtitles.forEach((subElement) => {
         const titleElement = subElement;
@@ -51,9 +53,6 @@ function extractIngredients(doc) {
         section = parseItems(title, subElement, 'span.p-ingredient');
         ingredientSections = ingredientSections.concat(section);
       });
-    } else {
-      section = parseItems(title, ingredient, 'span.p-ingredient');
-      ingredientSections = ingredientSections.concat(section);
     }
   });
   return ingredientSections;
@@ -65,19 +64,25 @@ function extractInstructions(doc) {
   instructions.forEach((instruction) => {
     let title = 'default';
     let section;
+
     const subtitles = instruction.querySelectorAll('.card-subtitle');
+    if (subtitles.length <= 1) {
+      section = parseItems(title, instruction, 'ol li span');
+      instructionsSections = instructionsSections.concat(section);
+    }
     if (subtitles.length > 0) {
       subtitles.forEach((subElement) => {
         const titleElement = subElement;
         if (titleElement != null) {
           title = subElement.textContent;
         }
-        section = parseItems(title, subElement, 'li span');
+        let selector = 'ol li span';
+        if (title === 'Informações Adicionais') {
+          selector = 'ul li span';
+        }
+        section = parseItems(title, subElement, selector);
         instructionsSections = instructionsSections.concat(section);
       });
-    } else {
-      section = parseItems(title, instruction, 'li span');
-      instructionsSections = instructionsSections.concat(section);
     }
   });
   return instructionsSections;
